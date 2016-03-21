@@ -48,7 +48,7 @@ class ElasticSearchHandler extends AbstractProcessingHandler
     /**
      * @param Client  $client  Elastica Client object
      * @param array   $options Handler configuration
-     * @param integer $level   The minimum logging level at which this handler will be triggered
+     * @param int     $level   The minimum logging level at which this handler will be triggered
      * @param Boolean $bubble  Whether the messages that are handled can bubble up the stack or not
      */
     public function __construct(Client $client, array $options = array(), $level = Logger::DEBUG, $bubble = true)
@@ -76,7 +76,7 @@ class ElasticSearchHandler extends AbstractProcessingHandler
     /**
      * {@inheritdoc}
      */
-    public function setFormatter(FormatterInterface $formatter)
+    public function setFormatter(FormatterInterface $formatter): HandlerInterface
     {
         if ($formatter instanceof ElasticaFormatter) {
             return parent::setFormatter($formatter);
@@ -96,7 +96,7 @@ class ElasticSearchHandler extends AbstractProcessingHandler
     /**
      * {@inheritDoc}
      */
-    protected function getDefaultFormatter()
+    protected function getDefaultFormatter(): FormatterInterface
     {
         return new ElasticaFormatter($this->options['index'], $this->options['type']);
     }

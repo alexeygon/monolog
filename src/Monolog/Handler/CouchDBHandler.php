@@ -11,6 +11,7 @@
 
 namespace Monolog\Handler;
 
+use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Logger;
 
@@ -54,7 +55,7 @@ class CouchDBHandler extends AbstractProcessingHandler
                 'ignore_errors' => true,
                 'max_redirects' => 0,
                 'header'        => 'Content-type: application/json',
-            )
+            ),
         ));
 
         if (false === @file_get_contents($url, null, $context)) {
@@ -65,7 +66,7 @@ class CouchDBHandler extends AbstractProcessingHandler
     /**
      * {@inheritDoc}
      */
-    protected function getDefaultFormatter()
+    protected function getDefaultFormatter(): FormatterInterface
     {
         return new JsonFormatter(JsonFormatter::BATCH_MODE_JSON, false);
     }

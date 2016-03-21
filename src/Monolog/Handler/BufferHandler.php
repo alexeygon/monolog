@@ -21,8 +21,10 @@ use Monolog\Logger;
  *
  * @author Christophe Coevoet <stof@notk.org>
  */
-class BufferHandler extends AbstractHandler
+class BufferHandler extends AbstractHandler implements ProcessableHandlerInterface
 {
+    use ProcessableHandlerTrait;
+
     protected $handler;
     protected $bufferSize = 0;
     protected $bufferLimit;
@@ -32,8 +34,8 @@ class BufferHandler extends AbstractHandler
 
     /**
      * @param HandlerInterface $handler         Handler.
-     * @param integer          $bufferLimit     How many entries should be buffered at most, beyond that the oldest items are removed from the buffer.
-     * @param integer          $level           The minimum logging level at which this handler will be triggered
+     * @param int              $bufferLimit     How many entries should be buffered at most, beyond that the oldest items are removed from the buffer.
+     * @param int              $level           The minimum logging level at which this handler will be triggered
      * @param Boolean          $bubble          Whether the messages that are handled can bubble up the stack or not
      * @param Boolean          $flushOnOverflow If true, the buffer is flushed when the max size has been reached, by default oldest entries are discarded
      */
@@ -48,7 +50,7 @@ class BufferHandler extends AbstractHandler
     /**
      * {@inheritdoc}
      */
-    public function handle(array $record)
+    public function handle(array $record): bool
     {
         if ($record['level'] < $this->level) {
             return false;
@@ -70,9 +72,7 @@ class BufferHandler extends AbstractHandler
         }
 
         if ($this->processors) {
-            foreach ($this->processors as $processor) {
-                $record = call_user_func($processor, $record);
-            }
+            $record = $this->processRecord($record);
         }
 
         $this->buffer[] = $record;

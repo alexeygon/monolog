@@ -12,6 +12,7 @@
 namespace Monolog\Handler;
 
 use Monolog\Formatter\LineFormatter;
+use Monolog\Formatter\FormatterInterface;
 use Monolog\Logger;
 
 /**
@@ -28,8 +29,8 @@ class ErrorLogHandler extends AbstractProcessingHandler
     protected $expandNewlines;
 
     /**
-     * @param integer $messageType    Says where the error should go.
-     * @param integer $level          The minimum logging level at which this handler will be triggered
+     * @param int     $messageType    Says where the error should go.
+     * @param int     $level          The minimum logging level at which this handler will be triggered
      * @param Boolean $bubble         Whether the messages that are handled can bubble up the stack or not
      * @param Boolean $expandNewlines If set to true, newlines in the message will be expanded to be take multiple log entries
      */
@@ -60,7 +61,7 @@ class ErrorLogHandler extends AbstractProcessingHandler
     /**
      * {@inheritDoc}
      */
-    protected function getDefaultFormatter()
+    protected function getDefaultFormatter(): FormatterInterface
     {
         return new LineFormatter('[%datetime%] %channel%.%level_name%: %message% %context% %extra%');
     }

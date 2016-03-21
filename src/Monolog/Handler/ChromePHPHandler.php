@@ -12,10 +12,13 @@
 namespace Monolog\Handler;
 
 use Monolog\Formatter\ChromePHPFormatter;
+use Monolog\Formatter\FormatterInterface;
 use Monolog\Logger;
 
 /**
  * Handler sending logs to the ChromePHP extension (http://www.chromephp.com/)
+ *
+ * This also works out of the box with Firefox 43+
  *
  * @author Christophe Coevoet <stof@notk.org>
  */
@@ -51,7 +54,7 @@ class ChromePHPHandler extends AbstractProcessingHandler
     protected static $sendHeaders = true;
 
     /**
-     * @param integer $level  The minimum logging level at which this handler will be triggered
+     * @param int     $level  The minimum logging level at which this handler will be triggered
      * @param Boolean $bubble Whether the messages that are handled can bubble up the stack or not
      */
     public function __construct($level = Logger::DEBUG, $bubble = true)
@@ -86,7 +89,7 @@ class ChromePHPHandler extends AbstractProcessingHandler
     /**
      * {@inheritDoc}
      */
-    protected function getDefaultFormatter()
+    protected function getDefaultFormatter(): FormatterInterface
     {
         return new ChromePHPFormatter();
     }
@@ -129,7 +132,7 @@ class ChromePHPHandler extends AbstractProcessingHandler
 
         $json = @json_encode(self::$json);
         $data = base64_encode(utf8_encode($json));
-        if (strlen($data) > 240*1024) {
+        if (strlen($data) > 240 * 1024) {
             self::$overflowed = true;
 
             $record = array(
@@ -175,7 +178,8 @@ class ChromePHPHandler extends AbstractProcessingHandler
             return false;
         }
 
-        return preg_match('{\bChrome/\d+[\.\d+]*\b}', $_SERVER['HTTP_USER_AGENT']);
+        // matches any Chrome, or Firefox 43+
+        return preg_match('{\b(?:Chrome/\d+(?:\.\d+)*|Firefox/(?:4[3-9]|[5-9]\d|\d{3,})(?:\.\d)*)\b}', $_SERVER['HTTP_USER_AGENT']);
     }
 
     /**
