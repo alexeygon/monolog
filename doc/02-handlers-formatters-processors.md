@@ -55,6 +55,7 @@
 - [_RollbarHandler_](../src/Monolog/Handler/RollbarHandler.php): Logs records to a [Rollbar](https://rollbar.com/) account.
 - [_SyslogUdpHandler_](../src/Monolog/Handler/SyslogUdpHandler.php): Logs records to a remote [Syslogd](http://www.rsyslog.com/) server.
 - [_LogEntriesHandler_](../src/Monolog/Handler/LogEntriesHandler.php): Logs records to a [LogEntries](http://logentries.com/) account.
+- [_LogmaticHandler_](../src/Monolog/Handler/LogmaticHandler.php): Logs records to a [Logmatic](http://logmatic.io/) account.
 
 ### Logging in development
 
@@ -135,6 +136,7 @@
 - [_LogglyFormatter_](../src/Monolog/Formatter/LogglyFormatter.php): Used to format log records into Loggly messages, only useful for the LogglyHandler.
 - [_FlowdockFormatter_](../src/Monolog/Formatter/FlowdockFormatter.php): Used to format log records into Flowdock messages, only useful for the FlowdockHandler.
 - [_MongoDBFormatter_](../src/Monolog/Formatter/MongoDBFormatter.php): Converts \DateTime instances to \MongoDate and objects recursively to arrays, only useful with the MongoDBHandler.
+- [_LogmaticFormatter_](../src/Monolog/Formatter/LogmaticFormatter.php): User to format log records to [Logmatic](http://logmatic.io/) messages, only useful for the LogmaticHandler.
 
 ## Processors
 

@@ -13,6 +13,7 @@ namespace Monolog\Handler;
 
 use Monolog\Test\TestCase;
 use Monolog\Handler\SyslogUdp\UdpSocket;
+use Monolog\Util\LocalSocket;
 
 /**
  * @requires extension sockets
@@ -21,28 +22,25 @@ class UdpSocketTest extends TestCase
 {
     public function testWeDoNotTruncateShortMessages()
     {
-        $socket = $this->getMock('\Monolog\Handler\SyslogUdp\UdpSocket', ['send'], ['lol', 'lol']);
+        $this->initSocket();
 
-        $socket->expects($this->at(0))
-            ->method('send')
-            ->with("HEADER: The quick brown fox jumps over the lazy dog");
-
+        $socket = new UdpSocket('127.0.0.1', 51983);
         $socket->write("The quick brown fox jumps over the lazy dog", "HEADER: ");
+
+        $this->assertEquals('HEADER: The quick brown fox jumps over the lazy dog', $this->socket->getOutput());
     }
 
     public function testLongMessagesAreTruncated()
     {
-        $socket = $this->getMock('\Monolog\Handler\SyslogUdp\UdpSocket', ['send'], ['lol', 'lol']);
+        $this->initSocket();
 
-        $truncatedString = str_repeat("derp", 16254).'d';
-
-        $socket->expects($this->exactly(1))
-            ->method('send')
-            ->with("HEADER" . $truncatedString);
+        $socket = new UdpSocket('127.0.0.1', 51983);
 
         $longString = str_repeat("derp", 20000);
-
         $socket->write($longString, "HEADER");
+
+        $truncatedString = str_repeat("derp", 16254).'d';
+        $this->assertEquals('HEADER'.$truncatedString, $this->socket->getOutput());
     }
 
     public function testDoubleCloseDoesNotError()
@@ -60,5 +58,15 @@ class UdpSocketTest extends TestCase
         $socket = new UdpSocket('127.0.0.1', 514);
         $socket->close();
         $socket->write('foo', "HEADER");
+    }
+
+    private function initSocket()
+    {
+        $this->socket = LocalSocket::initSocket(51983, LocalSocket::UDP);
+    }
+
+    public function tearDown()
+    {
+        unset($this->socket, $this->handler);
     }
 }

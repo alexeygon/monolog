@@ -56,8 +56,12 @@ class NormalizerFormatter implements FormatterInterface
         return $records;
     }
 
-    protected function normalize($data)
+    protected function normalize($data, $depth = 0)
     {
+        if ($depth > 9) {
+            return 'Over 9 levels deep, aborting normalization';
+        }
+
         if (null === $data || is_scalar($data)) {
             if (is_float($data)) {
                 if (is_infinite($data)) {
@@ -80,7 +84,7 @@ class NormalizerFormatter implements FormatterInterface
                     $normalized['...'] = 'Over 1000 items, aborting normalization';
                     break;
                 }
-                $normalized[$key] = $this->normalize($value);
+                $normalized[$key] = $this->normalize($value, $depth + 1);
             }
 
             return $normalized;
@@ -127,6 +131,20 @@ class NormalizerFormatter implements FormatterInterface
             'code' => $e->getCode(),
             'file' => $e->getFile().':'.$e->getLine(),
         ];
+
+        if ($e instanceof \SoapFault) {
+            if (isset($e->faultcode)) {
+                $data['faultcode'] = $e->faultcode;
+            }
+
+            if (isset($e->faultactor)) {
+                $data['faultactor'] = $e->faultactor;
+            }
+
+            if (isset($e->detail)) {
+                $data['detail'] = $e->detail;
+            }
+        }
 
         $trace = $e->getTrace();
         foreach ($trace as $frame) {
@@ -178,7 +196,7 @@ class NormalizerFormatter implements FormatterInterface
      */
     private function jsonEncode($data)
     {
-        return json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        return json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION);
     }
 
     /**
@@ -282,7 +300,9 @@ class NormalizerFormatter implements FormatterInterface
 
     protected function formatDate(\DateTimeInterface $date)
     {
-        if ($date instanceof DateTimeImmutable) {
+        // in case the date format isn't custom then we defer to the custom DateTimeImmutable
+        // formatting logic, which will pick the right format based on whether useMicroseconds is on
+        if ($this->dateFormat === self::SIMPLE_DATE && $date instanceof DateTimeImmutable) {
             return (string) $date;
         }
 

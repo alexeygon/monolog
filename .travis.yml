@@ -4,9 +4,11 @@ sudo: false
 
 matrix:
     include:
-        - php: 7
+        - php: 7.0
           env: deps=low
-        - php: 7
+        - php: 7.0
+        - php: 7.1
+        - php: nightly
     fast_finish: true
 
 before_script:
@@ -15,4 +17,4 @@ before_script:
   - if [ "$deps" == "low" ]; then composer update --prefer-source --prefer-lowest --prefer-stable; fi
   - if [ "$deps" != "low" ]; then composer install --prefer-source; fi
 
-script: composer test
+script: vendor/bin/phpunit --debug

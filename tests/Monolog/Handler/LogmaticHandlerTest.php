@@ -16,9 +16,9 @@ use Monolog\Logger;
 use Monolog\Util\LocalSocket;
 
 /**
- * @author Robert Kaufmann III <rok3@rok3.me>
+ * @author Julien Breux <julien.breux@gmail.com>
  */
-class LogEntriesHandlerTest extends TestCase
+class LogmaticHandlerTest extends TestCase
 {
     /**
      * @var resource
@@ -26,7 +26,7 @@ class LogEntriesHandlerTest extends TestCase
     private $res;
 
     /**
-     * @var LogEntriesHandler
+     * @var LogmaticHandler
      */
     private $handler;
 
@@ -36,7 +36,8 @@ class LogEntriesHandlerTest extends TestCase
         $this->handler->handle($this->getRecord(Logger::CRITICAL, 'Critical write test'));
 
         $content = $this->socket->getOutput();
-        $this->assertRegexp('/testToken \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00\] test.CRITICAL: Critical write test/', $content);
+
+        $this->assertRegexp('/testToken {"message":"Critical write test","context":\[\],"level":500,"level_name":"CRITICAL","channel":"test","datetime":"(.*)","extra":\[\],"hostname":"testHostname","appname":"testAppname"}/', $content);
     }
 
     public function testWriteBatchContent()
@@ -50,7 +51,8 @@ class LogEntriesHandlerTest extends TestCase
         $this->handler->handleBatch($records);
 
         $content = $this->socket->getOutput();
-        $this->assertRegexp('/(testToken \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00\] .* \[\] \[\]\n){3}/', $content);
+
+        $this->assertRegexp('/testToken {"message":"test","context":\[\],"level":300,"level_name":"WARNING","channel":"test","datetime":"(.*)","extra":\[\],"hostname":"testHostname","appname":"testAppname"}/', $content);
     }
 
     private function initHandlerAndSocket()
@@ -58,7 +60,7 @@ class LogEntriesHandlerTest extends TestCase
         $this->socket = LocalSocket::initSocket();
 
         $useSSL = extension_loaded('openssl');
-        $this->handler = new LogEntriesHandler('testToken', $useSSL, Logger::DEBUG, true);
+        $this->handler = new LogmaticHandler('testToken', 'testHostname', 'testAppname', $useSSL, Logger::DEBUG, true);
 
         $reflectionProperty = new \ReflectionProperty('\Monolog\Handler\SocketHandler', 'connectionString');
         $reflectionProperty->setAccessible(true);
